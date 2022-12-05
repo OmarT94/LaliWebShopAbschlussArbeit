@@ -1,0 +1,67 @@
+﻿@page "/Warenkorb"
+@inherits WarenkorbBase
+
+@if(WarenkorbItems==null && ErrorMessage== null)
+{
+    <Spinner></Spinner>
+}
+else if (ErrorMessage!=null)
+{
+    <DisplayError ErrorMessage ="@ErrorMessage"></DisplayError>
+}
+else
+{
+    <h2 class="mb-5">Ihr Warenkorb</h2>
+    @if (WarenkorbItems.Count() > 0)
+    {
+    <div class="row mb-5">
+            <div class ="col-md-9 ">
+            @foreach(var item in WarenkorbItems)
+            {
+                    <div class ="row mb-4">
+                    <div class ="col-md-4">
+                        <img src ="@item.ArtikelImage" width=300 class=img-thumbnail>
+                    </div>
+                        <div class ="col-md-8">
+                                <h5>@item.ArtikelName</h5>
+                                <div class ="mb-4">@item.ArtikelBezeichnung</div>
+                        <span>
+                            Preis: <b>@item.ArtikelPreisSingleNetto.ToString("C")</b>
+
+                            <input @oninput="()=>UpdateMenge_Input(item.Id)"
+                            type="number" @bind="@item.ArtikelMenge"/>
+                            <button data-itemId="@item.Id" class="btn btn-info btn-sm Update-menge"
+                            @onclick="(()=> UpdateMengeWarenkorbItem_Click(item.Id,item.ArtikelMenge))"
+                            >Update Anzahl</button>
+                        </span>
+                        <div>
+                            <button @onclick="(()=>DeleteWarenkorbItem_Button(item.Id))"
+                            class="btn btn-danger sm"><i class="oi oi-trash"></i></button>
+                        </div>
+                        </div> 
+                    </div>
+                }
+            </div>
+     
+                <div class ="col-md-3">
+                    <h3>Warenkorb Übersicht</h3>
+                    <div class="mt-2">
+                        <div><h4>GesamtKosten</h4>(@GesamteMenge items)&nbsp;<b>@GesamtePreis</b></div>
+                        <a href="kasse" class="btn btn-success">
+                        <span class ="oi oi-credit-card"></span>&nbsp;Zahlungsart Wählen
+                        </a>
+                    </div>
+                </div>
+    </div>
+
+    }
+        else
+        {
+        <h3>Ihr Warenkob ist Leer!</h3>
+    }
+
+}     
+                    
+        
+
+      

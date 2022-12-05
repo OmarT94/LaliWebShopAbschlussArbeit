@@ -1,0 +1,29 @@
+﻿@implements IDisposable
+@inject IWarenkorbService warenkorbService
+
+<a href="Warenkorb" class="btn btn-info">
+    <i class="oi oi-cart"></i>&nbsp; Warenkorb
+    <span class="badge bg-black">@warenkorbItemCount</span>
+
+</a>
+
+@code {
+    private int warenkorbItemCount = 0;
+
+    protected override void OnInitialized()
+    {
+        warenkorbService.WarenkorbGaendert += WarenkorbGaendert;
+    }
+
+    protected void WarenkorbGaendert(int gesamtMenge)
+    {
+        warenkorbItemCount = gesamtMenge;
+        StateHasChanged();
+    }
+
+    void IDisposable.Dispose()
+    {
+        warenkorbService.WarenkorbGaendert -= WarenkorbGaendert;
+    }
+
+}
