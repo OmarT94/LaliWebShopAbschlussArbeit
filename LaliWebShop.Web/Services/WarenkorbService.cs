@@ -15,9 +15,6 @@ namespace LaliWebShop.Web.Services
         {
             this.httpClient = httpClient;
         }
-
-        
-
         public async Task<WarenkorbItemDto> AddItem(WarenkorbItemToAddDto warenkorbItemToAddDto)
         {
             try
@@ -29,7 +26,6 @@ namespace LaliWebShop.Web.Services
                     {
                         return default(WarenkorbItemDto);
                     }
-
                     return await response.Content.ReadFromJsonAsync<WarenkorbItemDto>();
                 }
                 else
@@ -37,7 +33,6 @@ namespace LaliWebShop.Web.Services
                     var message = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Http status:{response.StatusCode}Message -{message}");
                 }
-
             }
             catch (Exception)
             {
@@ -45,7 +40,6 @@ namespace LaliWebShop.Web.Services
                 throw;
             }
         }
-
         public async Task<WarenkorbItemDto> DeleteItem(int id)
         {
             try

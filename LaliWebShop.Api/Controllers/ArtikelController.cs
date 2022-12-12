@@ -1,4 +1,5 @@
-﻿using LaliWebShop.Api.Extension;
+﻿using LaliWebShop.Api.Entities;
+using LaliWebShop.Api.Extension;
 using LaliWebShop.Api.Repository.Kontrakte;
 using LaliWebShop.Models.Dtos;
 using Microsoft.AspNetCore.Http;
@@ -66,6 +67,32 @@ namespace LaliWebShop.Api.Controllers
 
             }
         }
+
+        //Creat
+        [HttpPost]
+        public async Task<ActionResult> AddArtikel(ArtikeltoAddDto artikel)
+        {
+            ArtikeltoAddDto result = await artikelRepository.AddArtikel(artikel);
+            return Ok(result);
+        }
+
+        //Update
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateArtikel(ArtikeltoAddDto artikel)
+        {
+            
+            ArtikeltoAddDto artikeltoAdd= await artikelRepository.UpdateArtikel(artikel);
+            return Ok(artikeltoAdd);
+        }
+
+        //Delete
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteArtikel(int id)
+        {
+            return Ok(artikelRepository.DeleteArtikel(id));
+
+        }
+
 
     }
 }

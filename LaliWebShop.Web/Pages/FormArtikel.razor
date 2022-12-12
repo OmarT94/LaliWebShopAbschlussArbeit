@@ -1,0 +1,69 @@
+﻿
+<EditForm Model="@artikel" OnInvalidSubmit="@Submit">
+   <form>
+        <div class="row">
+          <div class="form-group col-md-6">
+           <label for="inputName"><h5>Artikelname</h5></label>
+           <input type="text" @bind-value="@artikel.Name" class="form-control" id="inputName" placeholder="Artikelname">  
+            <ValidationMessage For="@(() => artikel.Name)" />
+                 &nbsp;
+           </div>
+        </div>
+      
+         <div class="form-group">
+           <label for="artikelBezeichnung"><h5>Artikelbezeichnung</h5></label>
+           <input type="text" @bind-value="@artikel.Bezeichnung" class="form-control" id="artikelBezeichnung" placeholder="ArtikelBezeichnung">  
+            <ValidationMessage For="@(() => artikel.Bezeichnung)" />
+                 &nbsp;
+            </div>
+    
+        <div class="row">
+         <div class="form-group col-md-6">
+           <label for="inputImage"><h5>Image</h5></label>
+           <input type="string" @bind-value="@artikel.ImageURL" class="form-control" id="inputImage" placeholder="Artikelimage">  
+            <ValidationMessage For="@(() => artikel.ImageURL)" />
+                 &nbsp;
+            </div>
+         </div>
+    
+         <div class="row">   
+          <div class="col-md-2">
+           <label for="inputMenge"><h5>Menge</h5></label>
+           <input type="number" @bind-value="@artikel.Menge" class="form-control" id="inputMenge" placeholder="Menge">  
+            <ValidationMessage For="@(() => artikel.Menge)" />
+            </div>
+       
+         <div class="col-md-2">
+           <label for="inputPreis"><h5>Preis</h5></label>
+           <input type="number" @bind-value="@artikel.PreisSingleNetto" class="form-control" id="inputPreis" placeholder="Preis">  
+            <ValidationMessage For="@(() => artikel.PreisSingleNetto)" />
+            </div>
+  
+         <div class="col-md-4">
+           <label for="inputKategorie"><h5>kategorie</h5></label>
+           <input type="text" @bind-value="@artikel.KategorieName" class="form-control" id="inputKategorie" placeholder="Kategorie">  
+            <ValidationMessage For="@(() => artikel.KategorieName)" />
+                &nbsp;
+            </div> 
+        </div>
+    
+       
+   </form>
+   <button type="submit" class="btn btn-success" @onclick="Submit">
+            @ButtonText
+ </button>
+</EditForm>
+  
+
+@code {
+    [Parameter]
+    public ArtikeltoAddDto ?artikel{ get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Speichern";
+
+    [Parameter]
+    public EventCallback  Submit{ get; set; }
+
+
+}

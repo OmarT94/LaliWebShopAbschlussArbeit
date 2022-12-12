@@ -28,7 +28,7 @@ namespace LaliWebShop.Api.Data
                 PreisSingleNetto = 100,
                 Menge = 100,
                 KategorieId = 1,
-                KategorieName = "Kleidunghgggg"
+                KategorieName = "Kleidung"
 
 
 

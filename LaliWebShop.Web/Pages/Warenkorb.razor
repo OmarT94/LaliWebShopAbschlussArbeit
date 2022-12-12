@@ -1,6 +1,5 @@
 ﻿@page "/Warenkorb"
 @inherits WarenkorbBase
-
 @if(WarenkorbItems==null && ErrorMessage== null)
 {
     <Spinner></Spinner>
@@ -27,7 +26,6 @@ else
                                 <div class ="mb-4">@item.ArtikelBezeichnung</div>
                         <span>
                             Preis: <b>@item.ArtikelPreisSingleNetto.ToString("C")</b>
-
                             <input @oninput="()=>UpdateMenge_Input(item.Id)"
                             type="number" @bind="@item.ArtikelMenge"/>
                             <button data-itemId="@item.Id" class="btn btn-info btn-sm Update-menge"
@@ -42,7 +40,6 @@ else
                     </div>
                 }
             </div>
-     
                 <div class ="col-md-3">
                     <h3>Warenkorb Übersicht</h3>
                     <div class="mt-2">
@@ -53,13 +50,11 @@ else
                     </div>
                 </div>
     </div>
-
     }
         else
         {
         <h3>Ihr Warenkob ist Leer!</h3>
     }
-
 }     
                     
         

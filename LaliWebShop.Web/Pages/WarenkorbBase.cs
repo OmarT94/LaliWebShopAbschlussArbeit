@@ -32,12 +32,49 @@ namespace LaliWebShop.Web.Pages
                 ErrorMessage = ex.Message;
             }
         }
+       
+        private void SetGesamtePreis()
+        {
+            GesamtePreis = this.WarenkorbItems.Sum(a => a.Gesamtpreis).ToString("C");
+        }
 
+        private void SetGesamteMenge()
+        {
+            GesamteMenge = this.WarenkorbItems.Sum(a => a.ArtikelMenge);
+        }
+
+        private void RechneGesamteWarenkorb()
+        {
+            SetGesamteMenge();
+            SetGesamtePreis();
+        }
+        private void UpdateItemGesamtPreis(WarenkorbItemDto warenkorbItemDto)
+        {
+            var item = GetWarenkorbItem(warenkorbItemDto.Id);
+            if(item != null)
+            {
+                item.Gesamtpreis = warenkorbItemDto.ArtikelPreisSingleNetto * warenkorbItemDto.ArtikelMenge;
+            }
+        }
+        protected async Task UpdateMenge_Input(int id)
+        {
+            await MachUpdateMengeButtonVisible(id, true);
+        }
+        protected async Task MachUpdateMengeButtonVisible(int id,bool visible)
+        {
+            await js.InvokeVoidAsync("MachUpdateMengeButtonVisible",id,true);
+        }
+        protected async Task DeleteWarenkorbItem_Button(int id)
+        {
+            var warenkorbItemDto = await WarenkorbService.DeleteItem(id);
+            RemoveWarenkorbItem(id);
+            WarenkorbGaendert();
+        }
         protected async Task UpdateMengeWarenkorbItem_Click(int id, int menge)
         {
             try
             {
-                if(menge > 0)
+                if (menge > 0)
                 {
                     var updateWarenkorbItemDto = new WarenkorbMengeUpdateDto
                     {
@@ -55,7 +92,7 @@ namespace LaliWebShop.Web.Pages
                 else
                 {
                     var item = this.WarenkorbItems.FirstOrDefault(i => i.Id == id);
-                    if(item != null)
+                    if (item != null)
                     {
                         item.ArtikelMenge = 1;
                         item.Gesamtpreis = item.ArtikelPreisSingleNetto;
@@ -68,52 +105,6 @@ namespace LaliWebShop.Web.Pages
                 throw;
             }
         }
-
-        private void SetGesamtePreis()
-        {
-            GesamtePreis = this.WarenkorbItems.Sum(a => a.Gesamtpreis).ToString("C");
-        }
-
-        private void SetGesamteMenge()
-        {
-            GesamteMenge = this.WarenkorbItems.Sum(a => a.ArtikelMenge);
-        }
-
-        private void RechneGesamteWarenkorb()
-        {
-            SetGesamteMenge();
-            SetGesamtePreis();
-            
-        }
-
-        private void UpdateItemGesamtPreis(WarenkorbItemDto warenkorbItemDto)
-        {
-            var item = GetWarenkorbItem(warenkorbItemDto.Id);
-            if(item != null)
-            {
-                item.Gesamtpreis = warenkorbItemDto.ArtikelPreisSingleNetto * warenkorbItemDto.ArtikelMenge;
-            }
-           
-        }
-
-        protected async Task UpdateMenge_Input(int id)
-        {
-            await MachUpdateMengeButtonVisible(id, true);
-        }
-        protected async Task MachUpdateMengeButtonVisible(int id,bool visible)
-        {
-            await js.InvokeVoidAsync("MachUpdateMengeButtonVisible",id,true);
-        }
-
-
-        protected async Task DeleteWarenkorbItem_Button(int id)
-        {
-            var warenkorbItemDto = await WarenkorbService.DeleteItem(id);
-            RemoveWarenkorbItem(id);
-            WarenkorbGaendert();
-
-        }
-
         private WarenkorbItemDto GetWarenkorbItem(int id)
         {
             return WarenkorbItems.FirstOrDefault(i => i.Id == id);

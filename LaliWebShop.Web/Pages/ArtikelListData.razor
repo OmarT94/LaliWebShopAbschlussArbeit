@@ -1,0 +1,79 @@
+﻿@page "/artikel"
+@inject HttpClient client
+@inject IJSRuntime js
+<h3>Artikelsliste</h3>
+
+<div class="form-group">
+    <a class="btn btn-success" href="artikel/create"><i class="oi oi-plus"></i> Artikel hinzufügen</a>
+</div>
+
+@if (artikelDto == null)
+{
+    <text>Loading......</text>
+}
+else if (artikelDto.Length == 0)
+{
+    <text>No record</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                @*<th>Artikelnummer</th>*@
+                <th>Artikename</th>
+                <th>Bezeichnung</th>
+                <th>Menge</th>
+                <th>Preis</th>
+                <th>Image</th>
+                <th>Kategorie</th>
+                
+                
+                
+            </tr>
+        </thead>
+
+        <tbody>
+        @foreach(ArtikeltoAddDto artikell in artikelDto)
+        {
+            <tr>
+            @*<td>@artikell.Artikelnummer</td>*@
+            <td>@artikell.Name</td>
+            <td>@artikell.Bezeichnung</td>
+            <td>@artikell.Menge</td>
+            <td>@artikell.PreisSingleNetto</td>
+            <td>@artikell.ImageURL</td>
+            <td>@artikell.KategorieName</td>
+           
+            <td>
+                 <a class ="btn btn-success" href="artikel/update/@artikell.Id">Edit</a>
+                @* <div class ="card-footer alert-info text-center"></div>*@
+
+                <button class="btn btn-danger"@onclick="@(() =>Delete(artikell.Id))">Delete</button>
+            </td>
+            </tr>
+             
+           }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    ArtikeltoAddDto [] artikelDto{ get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        artikelDto = await client.GetFromJsonAsync<ArtikeltoAddDto[]>("api/artikel");
+    } 
+
+    async Task Delete(int id)
+    {
+        var artikel = artikelDto.First(x => x.Id == id);
+        if(await js.InvokeAsync<bool>("confirm",$"Möschten Sie den Artikel Löschen {artikel.Name} 's ({artikel.Id})Record?"))
+        {
+            await client.DeleteAsync($"api/artikel/{id}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

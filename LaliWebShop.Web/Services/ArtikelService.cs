@@ -13,6 +13,16 @@ namespace LaliWebShop.Web.Services
             this.httpClient = httpClient;
         }
 
+        //public Task<ArtikelDto> AddArtikel(ArtikeltoAddDto artikel)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public Task<ArtikelDto> DeleteArtikel(int id)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
         public async Task<ArtikelDto> GetItem(int id)
         {
             try
@@ -66,5 +76,10 @@ namespace LaliWebShop.Web.Services
                 throw;
             }
         }
+
+        //public Task<ArtikelDto> UpdateArtikel(ArtikeltoAddDto artikel)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
