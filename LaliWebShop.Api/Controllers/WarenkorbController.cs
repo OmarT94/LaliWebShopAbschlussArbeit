@@ -1,5 +1,5 @@
-﻿using LaliWebShop.Api.Extension;
-using LaliWebShop.Api.Repository.Kontrakte;
+﻿using Lali.Business.Repository.Kontrakte;
+using LaliWebShop.Api.Extension;
 using LaliWebShop.Models.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,134 +20,134 @@ namespace LaliWebShop.Api.Controllers
             this.artikelRepository = artikelRepository;
         }
 
-        [HttpGet]
-        [Route("{kundeId}/GetItems")]
-        public async Task<ActionResult<IEnumerable<WarenkorbItemDto>>> GetItems(int kundeId)
-        {
-            try
-            {
-                var warenkorbItems = await this.warenkorbRepository.GetAllItems(kundeId);
-                if (warenkorbItems == null)
-                {
-                    return NoContent();
-                }
-                var artikels = await this.artikelRepository.GetItems();
-                if (artikels == null)
-                {
-                    throw new Exception("kein existierter Artikel in System");
-                }
+        //[HttpGet]
+        //[Route("{kundeId}/GetItems")]
+        //public async Task<ActionResult<IEnumerable<WarenkorbItemDto>>> GetItems(int kundeId)
+        //{
+        //    try
+        //    {
+        //        var warenkorbItems = await this.warenkorbRepository.GetAllItems(kundeId);
+        //        if (warenkorbItems == null)
+        //        {
+        //            return NoContent();
+        //        }
+        //        var artikels = await this.artikelRepository.GetItems();
+        //        if (artikels == null)
+        //        {
+        //            throw new Exception("kein existierter Artikel in System");
+        //        }
 
-                var warenkorbItemsDto = warenkorbItems.KonvertToDto(artikels);
-                return Ok(warenkorbItemsDto);
+        //        var warenkorbItemsDto = warenkorbItems.KonvertToDto(artikels);
+        //        return Ok(warenkorbItemsDto);
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        //}
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<WarenkorbItemDto>> GetItem(int id)
-        {
-            try
-            {
-                var warenkorbItem = await this.warenkorbRepository.GetItem(id);
-                if (warenkorbItem == null)
-                {
-                    return NotFound();
-                }
-                var artikel = await artikelRepository.GetItem(warenkorbItem.ArtikelId);
-                if (artikel == null)
-                {
-                    return NotFound();
-                }
-                var warenkorbItemDto = warenkorbItem.KonvertToDto(artikel);
+        //[HttpGet("{id:int}")]
+        //public async Task<ActionResult<WarenkorbItemDto>> GetItem(int id)
+        //{
+        //    try
+        //    {
+        //        var warenkorbItem = await this.warenkorbRepository.GetItem(id);
+        //        if (warenkorbItem == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        var artikel = await artikelRepository.GetItem(warenkorbItem.ArtikelId);
+        //        if (artikel == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        var warenkorbItemDto = warenkorbItem.KonvertToDto(artikel);
 
-                return Ok(warenkorbItemDto);
+        //        return Ok(warenkorbItemDto);
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        //}
 
-        [HttpPost]
-        public async Task<ActionResult<WarenkorbItemDto>> PostItem([FromBody] WarenkorbItemToAddDto warenkorbItemToAddDto)
-        {
-            try
-            {
-                var newWarenkorbItem = await this.warenkorbRepository.AddItem(warenkorbItemToAddDto);
-                if (newWarenkorbItem == null)
-                {
-                    return NoContent();
-                }
-                var artikel = await artikelRepository.GetItem(newWarenkorbItem.ArtikelId);
-                if (artikel == null)
-                {
-                    throw new Exception($"Irgendwas ist Schief gelaufen (productId:({warenkorbItemToAddDto.ArtikelId})");
-                }
+        //[HttpPost]
+        //public async Task<ActionResult<WarenkorbItemDto>> PostItem([FromBody] WarenkorbItemToAddDto warenkorbItemToAddDto)
+        //{
+        //    try
+        //    {
+        //        var newWarenkorbItem = await this.warenkorbRepository.AddItem(warenkorbItemToAddDto);
+        //        if (newWarenkorbItem == null)
+        //        {
+        //            return NoContent();
+        //        }
+        //        var artikel = await artikelRepository.GetItem(newWarenkorbItem.ArtikelId);
+        //        if (artikel == null)
+        //        {
+        //            throw new Exception($"Irgendwas ist Schief gelaufen (productId:({warenkorbItemToAddDto.ArtikelId})");
+        //        }
 
-                var newWarenkorbItemDto = newWarenkorbItem.KonvertToDto(artikel);
-                return CreatedAtAction(nameof(GetItem), new { id = newWarenkorbItemDto.Id }, newWarenkorbItemDto);
+        //        var newWarenkorbItemDto = newWarenkorbItem.KonvertToDto(artikel);
+        //        return CreatedAtAction(nameof(GetItem), new { id = newWarenkorbItemDto.Id }, newWarenkorbItemDto);
 
 
-            }
-            catch (Exception ex)
-            {
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        //}
 
-        [HttpDelete("{id:int}")]
-         public async Task<ActionResult<WarenkorbItemDto>>DeleteItem(int id)
-         {
-            try
-            {
-                var warenkorbItem = await this.warenkorbRepository.DeleteItem(id);
-                if(warenkorbItem== null)
-                {
-                    return NotFound();
-                }
-                var arrikel = await this.artikelRepository.GetItem(warenkorbItem.ArtikelId);
-                if (arrikel == null)
-                    return NotFound();
+        //[HttpDelete("{id:int}")]
+        // public async Task<ActionResult<WarenkorbItemDto>>DeleteItem(int id)
+        // {
+        //    try
+        //    {
+        //        var warenkorbItem = await this.warenkorbRepository.DeleteItem(id);
+        //        if(warenkorbItem== null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        var arrikel = await this.artikelRepository.GetItem(warenkorbItem.ArtikelId);
+        //        if (arrikel == null)
+        //            return NotFound();
 
-                var warenkorbItemDto = warenkorbItem.KonvertToDto(arrikel);
-                return Ok(warenkorbItemDto);
-            }
-            catch (Exception ex)
-            {
+        //        var warenkorbItemDto = warenkorbItem.KonvertToDto(arrikel);
+        //        return Ok(warenkorbItemDto);
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-         }
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        // }
 
-        [HttpPatch("{id:int}")]
-        public async Task<ActionResult<WarenkorbItemDto>> UpdateMenge(int id, WarenkorbMengeUpdateDto warenkorbMengeUpdateDto)
-        {
-            try
-            {
-                var warenkorbItem = await this.warenkorbRepository.UpdateMenge(id, warenkorbMengeUpdateDto);
-                if(warenkorbItem == null)
-                {
-                    return NotFound();
-                }
-                var artikel = await this.artikelRepository.GetItem(warenkorbItem.ArtikelId);
-                var warenkorbItemDto = warenkorbItem.KonvertToDto(artikel);
-                return Ok(warenkorbItemDto);
-            }
-            catch (Exception ex)
-            {
+        //[HttpPatch("{id:int}")]
+        //public async Task<ActionResult<WarenkorbItemDto>> UpdateMenge(int id, WarenkorbMengeUpdateDto warenkorbMengeUpdateDto)
+        //{
+        //    try
+        //    {
+        //        var warenkorbItem = await this.warenkorbRepository.UpdateMenge(id, warenkorbMengeUpdateDto);
+        //        if(warenkorbItem == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        var artikel = await this.artikelRepository.GetItem(warenkorbItem.ArtikelId);
+        //        var warenkorbItemDto = warenkorbItem.KonvertToDto(artikel);
+        //        return Ok(warenkorbItemDto);
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 
-            }
-        }
+        //    }
+        //}
 
     }
 }

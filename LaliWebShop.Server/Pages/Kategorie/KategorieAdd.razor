@@ -1,0 +1,91 @@
+﻿@page "/kategorie/create"
+@page "/kategorie/edit/{id:int}"
+@inject NavigationManager _navigationManager
+
+@using Lali.Business.Repository.Kontrakte
+@using LaliWebShop.Models.Dtos
+
+@inject IKategorieRepository _kategorieRepository
+
+
+<div class="row my-2">
+    <h3 class="card-title text-primary mb-3 ml-3">@Title Kategorie</h3>
+
+    <div class="col-10">
+        @if (IsLoading)
+        {
+             <div class="text-center">
+                <img src="/images/loading.gif">
+                    </div>
+        }
+        else{
+        <EditForm Model="Kategorie" OnValidSubmit="AddKategorie">
+            <DataAnnotationsValidator/>
+            @*<ValidationSummary/>*@
+            <div class="form-group">
+                <label>Name</label>
+                <InputText @bind-Value="Kategorie.Name" class="form-control"></InputText> 
+                <ValidationMessage For="()=>Kategorie.Name"></ValidationMessage>
+            </div>
+            <div class="form-group py-2">
+                <button class="btn btn-primary">@Title</button>
+                <NavLink href="kategorie" class="btn btn-secondary">Zurück</NavLink>
+            </div>
+        </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+
+    private KategorieDto Kategorie { get; set; } = new KategorieDto();
+    private string Title { get; set; } = "Create";
+    public bool IsLoading { get; set; } 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Id==0)
+            {
+                //create
+                IsLoading=false;
+            }
+            else
+            {
+                //update
+                Title="Update";
+                await LoadKategorie();
+            }
+        }
+
+    }
+
+    private async Task LoadKategorie()
+    {
+        IsLoading=true;
+        StateHasChanged();
+        Kategorie = await _kategorieRepository.Get(Id);
+        IsLoading=false;
+        StateHasChanged();
+    }
+    private  async Task AddKategorie()
+    {
+        if (Kategorie.Id==0)
+        {
+            //create
+            await _kategorieRepository.Create(Kategorie);
+        }
+        else
+        {
+            //update
+            await _kategorieRepository.Update(Kategorie);
+        }
+        _navigationManager.NavigateTo("kategorie");
+
+        
+    }
+}

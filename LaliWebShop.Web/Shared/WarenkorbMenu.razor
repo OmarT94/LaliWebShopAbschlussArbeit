@@ -12,7 +12,7 @@
 
     protected override void OnInitialized()
     {
-        warenkorbService.WarenkorbGaendert += WarenkorbGaendert;
+        //warenkorbService.WarenkorbGaendert += WarenkorbGaendert;
     }
 
     protected void WarenkorbGaendert(int gesamtMenge)
@@ -23,7 +23,7 @@
 
     void IDisposable.Dispose()
     {
-        warenkorbService.WarenkorbGaendert -= WarenkorbGaendert;
+        //warenkorbService.WarenkorbGaendert -= WarenkorbGaendert;
     }
 
 }

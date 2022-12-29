@@ -1,9 +1,9 @@
 ﻿@page "/"
+@using Lali.Business.Repository.Kontrakte
 
 @inherits ArtikelBase
-
-
-
+@*@inject IArtikelRepository _artikelRepository
+*@
 @if (Artikels == null)
 {
    <Spinner/>
@@ -16,16 +16,6 @@ else
 
     @if (artikelMenge > 0)
     {
-        @*const int itemsRow = 4;
-            var artikelsRow = new List<ArtikelDto>();
-            @for(int i =0;i < artikelMenge; i++)
-            {
-            artikelsRow = Artikels.Skip(i * itemsRow).Take(itemsRow).ToList();
-            <div class="row mt-3">
-            <DisplayArtikel Artikels="@artikelsRow"></DisplayArtikel>
-            </div>
-            }*@
-      
           
                 @foreach(var artikelGroup in GetGroupArtikelByKategorie())
             {
@@ -35,17 +25,19 @@ else
                 <DisplayArtikel Artikels="@artikelGroup.Take(10)"></DisplayArtikel>
             </div>
             }
-            
-            <hr class="mb-3" />
-
-
-    }
+      
+     }
 }
-
-
-
-
-
 @code {
 
+    //public bool IsProcessing { get; set; } = false;
+    //public IEnumerable<ArtikelDto> Artikels { get; set; } = new List<ArtikelDto>();
+
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    IsProcessing=true;
+    //    Artikels = await _artikelRepository.GetItems();
+    //    IsProcessing=false;
+    //}
 }

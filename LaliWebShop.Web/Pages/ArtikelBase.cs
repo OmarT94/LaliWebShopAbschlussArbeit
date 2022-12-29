@@ -24,10 +24,10 @@ namespace LaliWebShop.Web.Pages
             try
             {
                 Artikels = await ArtikelService.GetItems();
-                var warenkorbItems = await WarenkorbService.GetItems(FestProgrammiert.KundeId);
-                var gesamteMenge = warenkorbItems.Sum(i => i.ArtikelMenge);
+                //var warenkorbItems = await WarenkorbService.GetItems(FestProgrammiert.KundeId);
+                //var gesamteMenge = warenkorbItems.Sum(i => i.ArtikelMenge);
 
-                WarenkorbService.RaiseEventWarenkorbGaendert(gesamteMenge);
+                //WarenkorbService.RaiseEventWarenkorbGaendert(gesamteMenge);
 
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace LaliWebShop.Web.Pages
 
         protected string GetKategorieName (IGrouping<int,ArtikelDto> groupeArtikelDto)
         {
-            return groupeArtikelDto.FirstOrDefault(ag => ag.KategorieId == groupeArtikelDto.Key).KategorieName;
+            return groupeArtikelDto.FirstOrDefault(ag => ag.KategorieId == groupeArtikelDto.Key).Kategorie.Name; //Unsicher 
         }
 
     }

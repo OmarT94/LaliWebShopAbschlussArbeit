@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lali.Common\Lali.Common.csproj" />
+    <ProjectReference Include="..\Lali.DataAccess\Lali.DataAccess.csproj" />
+    <ProjectReference Include="..\LaliWebShop.Models\LaliWebShop.Models.csproj" />
+  </ItemGroup>
+
+</Project>

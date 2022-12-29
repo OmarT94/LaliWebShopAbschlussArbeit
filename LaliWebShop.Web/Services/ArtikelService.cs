@@ -1,5 +1,7 @@
-﻿using LaliWebShop.Models.Dtos;
+﻿using LaliWebShop.Models;
+using LaliWebShop.Models.Dtos;
 using LaliWebShop.Web.Services.Kontrakte;
+using Newtonsoft.Json;
 using System.Net.Http.Json;
 
 namespace LaliWebShop.Web.Services
@@ -7,42 +9,39 @@ namespace LaliWebShop.Web.Services
     public class ArtikelService: IArtikelService
     {
         private readonly HttpClient httpClient;
-
-        public ArtikelService(HttpClient httpClient)
+        private IConfiguration _configuration;
+        private string BaseServerUrl;
+        public ArtikelService(HttpClient httpClient, IConfiguration configuration)
         {
             this.httpClient = httpClient;
+            this._configuration = configuration;
+            BaseServerUrl = _configuration.GetSection("BaseServerUrl").Value;
         }
 
-        //public Task<ArtikelDto> AddArtikel(ArtikeltoAddDto artikel)
-        //{
-        //    throw new NotImplementedException();
-        //}
+       
 
-        //public Task<ArtikelDto> DeleteArtikel(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public async Task<ArtikelDto> GetItem(int id)
+        public async Task<ArtikelDto> GetItem(int artikelId)
         {
             try
             {
-                var response = await httpClient.GetAsync($"api/Artikel/{id}");
+                var response = await this.httpClient.GetAsync($"/api/Artikel/{artikelId}");
+                var content = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    if(response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                    {
-                        return default(ArtikelDto);
-                    }
-                    return await response.Content.ReadFromJsonAsync<ArtikelDto>();
+                   
+                    var artikel = JsonConvert.DeserializeObject<ArtikelDto>(content);
+                    artikel.ImageURL = BaseServerUrl + artikel.ImageURL;
+                    return artikel;
+                  
                 }
                 else
                 {
-                    var message= await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
+                    var errorModel = JsonConvert.DeserializeObject<ErrorModelDto>(content);
+                    throw new Exception(errorModel.ErrorMessage);
                 }
+               
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
@@ -53,33 +52,26 @@ namespace LaliWebShop.Web.Services
         {
             try
             {
-                var response = await this.httpClient.GetAsync("api/Artikel");
+                var response = await this.httpClient.GetAsync("/api/Artikel");
                 if (response.IsSuccessStatusCode)
                 {
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    var content = await response.Content.ReadAsStringAsync();
+                    var artikels = JsonConvert.DeserializeObject<IEnumerable<ArtikelDto>>(content);
+                    foreach(var art in artikels)
                     {
-                        return Enumerable.Empty<ArtikelDto>();
+                        art.ImageURL = BaseServerUrl + art.ImageURL;
                     }
-                    return await response.Content.ReadFromJsonAsync<IEnumerable<ArtikelDto>>();
+                    return artikels;
                 }
-                else
-                {
-                    var message = await response.Content.ReadAsStringAsync();
-                    throw new Exception(message);
-                }
-                
-                
+                return new List<ArtikelDto>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
             }
         }
 
-        //public Task<ArtikelDto> UpdateArtikel(ArtikeltoAddDto artikel)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        
     }
 }

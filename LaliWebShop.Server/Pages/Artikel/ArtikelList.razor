@@ -1,0 +1,126 @@
+﻿@page "/artikel"
+@inject IFileUpload _fileUpload
+@inject IJSRuntime _jsRuntime
+@inject IArtikelRepository _artikelRepository
+@using Lali.Business.Repository.Kontrakte
+@using LaliWebShop.Models.Dtos
+@using LaliWebShop.Server.Helper
+
+
+<DeleteConfirmation IsParentComponentProcessing="IsLoading" ConfirmationChanged="ConfirmDelete_Click"></DeleteConfirmation>
+<div class="row mt-4">
+    <div class="col-6">
+        <h4 class="card-title text-primary">Artikel List</h4>
+    </div>
+    <div class="col-4 offset-2">
+        <a href="artikel/create" class="btn btn-primary form-control">Add Artikel </a>
+    </div>
+    <div class="col-12 p-3">
+        @if (Artikels.Any())
+        {
+            <table class="table table-bordered">
+                 <thead>
+                    <tr>
+                        <th>Name</th>
+                         <th>Artikel Nummer</th>
+                          <th>Menge</th>
+                           <th>Preis</th>
+                           <th>Kategorie</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var artikel in Artikels)
+                    {
+                        <tr>
+                            <td>
+                               @artikel.Name
+                            </td> 
+                            <th>
+                                 @artikel.Artikelnummer
+                            </th>
+                            <th>
+                                 @artikel.Menge
+                            </th>
+                            <th>
+                                 @artikel.PreisSingleNetto
+                            </th>
+                            <th>
+                                 @artikel.Kategorie.Name
+                            </th>
+                            <td>
+                            <NavLink href="@($"artikel/edit/{artikel.Id}")" class="btn-primary btn">Bearbeiten</NavLink>
+                            <button class="btn btn-danger" @onclick="()=>HandleDelete(artikel.Id)">Löschen</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            if (IsLoading)
+            {
+                
+                //loading gif
+                <div class="text-center">
+                <img src="/images/loading.gif">
+                    </div>
+            }
+            else
+            {
+                //no records
+                <p>Kein Artikel gefunden.</p>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private IEnumerable<ArtikelDto> Artikels { get; set; } = new List<ArtikelDto>();
+    public bool IsLoading { get; set; }
+    private int DeleteArtikelId { get; set; } = 0;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadArtikels();
+        }
+    }
+
+    private async Task LoadArtikels()
+    {
+        IsLoading=true;
+        StateHasChanged();
+        Artikels = await _artikelRepository.GetItems();
+        IsLoading=false;
+        StateHasChanged();
+    }
+
+    private void HandleDelete(int id)
+    {
+        DeleteArtikelId=id;
+        _jsRuntime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+    }
+
+    public async Task ConfirmDelete_Click(bool isConfirmed)
+    {
+        IsLoading=true;
+        if(isConfirmed && DeleteArtikelId!=0)
+        {
+            //delete
+            ArtikelDto artikel = await _artikelRepository.GetItem(DeleteArtikelId);
+            if (!artikel.ImageURL.Contains("default.png"))
+            {
+                _fileUpload.DeleteFile(artikel.ImageURL);
+            }
+            await _artikelRepository.DeleteArtikel(DeleteArtikelId);
+            //await _jsRuntime.ToastrSuccess("Artikel erfolgreich gelöscht");
+            await LoadArtikels();
+            await _jsRuntime.InvokeVoidAsync("HideDeleteConfirmationModal");
+        }
+        IsLoading=false;
+    }
+}

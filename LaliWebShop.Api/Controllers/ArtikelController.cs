@@ -1,6 +1,6 @@
-﻿using LaliWebShop.Api.Entities;
+﻿using Lali.Business.Repository.Kontrakte;
 using LaliWebShop.Api.Extension;
-using LaliWebShop.Api.Repository.Kontrakte;
+using LaliWebShop.Models;
 using LaliWebShop.Models.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,87 +11,120 @@ namespace LaliWebShop.Api.Controllers
     [ApiController]
     public class ArtikelController : ControllerBase
     {
-        private readonly IArtikelRepository artikelRepository;
+        private readonly IArtikelRepository _artikelRepository;
 
         public ArtikelController(IArtikelRepository artikelRepository)
         {
-            this.artikelRepository = artikelRepository;
+            this._artikelRepository = artikelRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ArtikelDto>>> GetItems()
+        public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var artikels = await this.artikelRepository.GetItems();
-                var artikelCategorie = await this.artikelRepository.GetKategorien();
-                if(artikels== null || artikelCategorie == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    var artikelDto = artikels.KonvertToDto(artikelCategorie);
-                    return Ok(artikelDto);
-                }
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Fehler beim abrufen die Daten von DB ");
-                
-            }
+            return Ok(await _artikelRepository.GetItems());
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<ArtikelDto>> GetItem(int id)
+        [HttpGet("{artikelId}")]
+        public async Task<IActionResult> Get(int? artikelId)
         {
-            try
+            if (artikelId == null || artikelId == 0)
             {
-                var artikel = await this.artikelRepository.GetItem(id);
-                if (artikel == null )
+                return BadRequest(new ErrorModelDto()
                 {
-                    return BadRequest();
-                }
-                else
-                {
-                    var artikelKategorie= await this.artikelRepository.GetKategorie(artikel.KategorieId);
-                    var artikelDto=artikel.KonvertToDto(artikelKategorie);
-                    return Ok(artikelDto);
-                }
+                    ErrorMessage = "Ungültige Id",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
             }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Fehler beim abrufen die Daten von DB ");
 
+            var artikel = await _artikelRepository.GetItem(artikelId.Value);
+            if (artikel == null)
+            {
+                return BadRequest(new ErrorModelDto()
+                {
+                    ErrorMessage = "Ungültige Id",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
             }
+
+            return Ok(artikel);
         }
+
+
+
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<ArtikelDto>>> GetItems()
+        //{
+        //    try
+        //    {
+        //        var artikels = await this.artikelRepository.GetItems();
+        //        var artikelCategorie = await this.artikelRepository.GetKategorien();
+        //        if(artikels== null || artikelCategorie == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            var artikelDto = artikels.KonvertToDto(artikelCategorie);
+        //            return Ok(artikelDto);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError,
+        //            "Fehler beim abrufen die Daten von DB ");
+
+        //    }
+        //}
+
+        //[HttpGet("{id:int}")]
+        //public async Task<ActionResult<ArtikelDto>> GetItem(int id)
+        //{
+        //    try
+        //    {
+        //        var artikel = await this.artikelRepository.GetItem(id);
+        //        if (artikel == null )
+        //        {
+        //            return BadRequest();
+        //        }
+        //        else
+        //        {
+        //            var artikelKategorie= await this.artikelRepository.GetKategorie(artikel.KategorieId);
+        //            var artikelDto=artikel.KonvertToDto(artikelKategorie);
+        //            return Ok(artikelDto);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError,
+        //            "Fehler beim abrufen die Daten von DB ");
+
+        //    }
+        //}
 
         //Creat
-        [HttpPost]
-        public async Task<ActionResult> AddArtikel(ArtikeltoAddDto artikel)
-        {
-            ArtikeltoAddDto result = await artikelRepository.AddArtikel(artikel);
-            return Ok(result);
-        }
+        //[HttpPost]
+        //public async Task<ActionResult> AddArtikel(ArtikelDto artikel)
+        //{
+        //    ArtikeltoAddDto result = await artikelRepository.AddArtikel(artikel);
+        //    return Ok(result);
+        //}
 
-        //Update
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateArtikel(ArtikeltoAddDto artikel)
-        {
-            
-            ArtikeltoAddDto artikeltoAdd= await artikelRepository.UpdateArtikel(artikel);
-            return Ok(artikeltoAdd);
-        }
+        ////Update
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateArtikel(ArtikelDto artikel)
+        //{
 
-        //Delete
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteArtikel(int id)
-        {
-            return Ok(artikelRepository.DeleteArtikel(id));
+        //    ArtikeltoAddDto artikeltoAdd= await artikelRepository.UpdateArtikel(artikel);
+        //    return Ok(artikeltoAdd);
+        //}
 
-        }
+        ////Delete
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteArtikel(int id)
+        //{
+        //    return Ok(artikelRepository.DeleteArtikel(id));
+
+        //}
 
 
     }

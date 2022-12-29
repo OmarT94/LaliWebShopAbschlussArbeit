@@ -1,6 +1,9 @@
 ﻿using LaliWebShop.Models.Dtos;
+using LaliWebShop.Web.Helper;
 using LaliWebShop.Web.Services.Kontrakte;
+using LaliWebShop.Web.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace LaliWebShop.Web.Pages
 {
@@ -17,6 +20,10 @@ namespace LaliWebShop.Web.Pages
 
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+        [Inject]
+        public IJSRuntime js { get; set; }
+
+        public DetailsVM DetailsVM { get; set; } = new();
 
         public ArtikelDto artikel { get; set; }
         public string ErrorMessage { get; set; }
@@ -35,12 +42,18 @@ namespace LaliWebShop.Web.Pages
             }
         }
 
-        protected async Task AddToWarenkorb_Button(WarenkorbItemToAddDto warenkorbItemToAddDto)
+        protected async Task AddToWarenkorb_Button()
         {
             try
             {
-                var warenkorbItemDto= await WarenkorbService.AddItem(warenkorbItemToAddDto);
-                NavigationManager.NavigateTo("/Warenkorb");
+                WarenkorbSicht warenkorb= new()
+                {
+                    Count = DetailsVM.Count,
+                    ArtikelId = artikel.Id
+                };
+                await WarenkorbService.AddItem(warenkorb);
+                NavigationManager.NavigateTo("/");
+                await js.ToastrSuccess("Der Artikel wurde erfolgreich in den Warenkorb hinzugefügt ");
             }
             catch (Exception)
             {

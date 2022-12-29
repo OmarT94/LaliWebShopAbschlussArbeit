@@ -1,0 +1,97 @@
+﻿@page "/Warenkorb"
+@inherits WarenkorbBase
+@if(Warenkorb==null && ErrorMessage== null)
+{
+    <Spinner></Spinner>
+}
+else if (ErrorMessage!=null)
+{
+    <DisplayError ErrorMessage ="@ErrorMessage"></DisplayError>
+}
+else
+{
+	@if (!Warenkorb.Any())
+	{
+		<div>
+			Bitte legen Sie Items in den Warenkorb.
+		</div>
+	}
+	else
+	{
+		<div class="container mt-4">
+			<div class="card">
+				<div class="card-header bg-dark text-light ml-0 ">
+					<div class="row">
+						<div class="col-6  pt-2 text-info">
+							Warenkorb
+						</div>
+						<div class="col-6 col-md-3 offset-md-3 text-end">
+							<a href="/" class="btn btn-outline-info form-control">Weiter Einkaufen</a>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+
+					@foreach(var item in Warenkorb){
+
+					<div class="row">
+						<div class="col-3 col-md-1 text-center py-2">
+							<img src="@item.Artikel.ImageURL" class="rounded" width="100%" />
+						</div>
+						<div class="col-9 text-sm-center text-md-start col-md-4 pt-lg-1 ">
+							<h4><strong>@item.Artikel.Name</strong></h4>
+
+							<div class="badge bg-success text-center" style="font-size:12px;">
+								@item.Artikel.Kategorie.Name
+							</div>
+						</div>
+						<div class="col-12 text-sm-center col-md-7 text-md-start row  pt-lg-3 mt-3">
+							<div class="col-4 pt-1 ">
+
+								<h6><strong>@item.Artikel.PreisSingleNetto.ToString("c") <span class="text-muted">x</span> @item.Count </strong></h6>
+							</div>
+							<div class="col-6 col-sm-4 col-lg-6">
+								<button @onclick="()=>Increment(item.ArtikelId,1)" type="submit" class="btn btn-primary">
+									<i class="bi bi-plus-square"></i>
+								</button>
+								<button @onclick="()=>Decrement(item.ArtikelId,1)" type="submit" class="btn btn-warning">
+									<i class="bi bi-dash-square"></i>
+								</button>
+							</div>
+							<div class="col-2 col-sm-4 col-lg-2 text-right">
+								<button @onclick="()=>Decrement(item.ArtikelId,0)" type="submit" class="btn btn-outline-danger">
+									<i class="bi bi-trash-fill"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					}
+					<hr />
+
+					<div class="row">
+						<div class="col-12 col-md-6 offset-md-1 col-lg-4 offset-lg-3 pr-4">
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between bg-light">
+									<span class="text-dark">Die Gesamtsumme beträgt :</span>
+									<strong class="text-info">@BestellungTotal.ToString("c")</strong>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+
+				</div>
+				<div class="card-footer">
+					<div class="col-12  col-md-3 offset-md-9">
+						<a href="/Kasse" class="btn btn-secondary form-control">Zur Kasse</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+}
+                    
+        
+
+      

@@ -1,4 +1,4 @@
-﻿using LaliWebShop.Api.Entities;
+﻿using Lali.DataAccess.Entities;
 using LaliWebShop.Models.Dtos;
 
 namespace LaliWebShop.Api.Extension
@@ -20,7 +20,7 @@ namespace LaliWebShop.Api.Extension
                        PreisSingleNetto=artikel.PreisSingleNetto,
                        Menge = artikel.Menge,
                        KategorieId=artikel.KategorieId,
-                       KategorieName=kategorie.Name,
+                       //KategorieName=kategorie.Name,
 
                    }).ToList();
 
@@ -38,7 +38,7 @@ namespace LaliWebShop.Api.Extension
                 PreisSingleNetto = artikel.PreisSingleNetto,
                 Menge = artikel.Menge,
                 KategorieId = artikel.KategorieId,
-                KategorieName = kategorie.Name
+                //KategorieName = kategorie.Name
             };
         }
 
@@ -52,7 +52,7 @@ namespace LaliWebShop.Api.Extension
                     {
                         Id = warenkorbItem.Id,
                         ArtikelId = warenkorbItem.ArtikelId,
-                        KategorieName = artikel.KategorieName,
+                        //KategorieName = artikel.KategorieName,
                         ArtikelNummer = artikel.Artikelnummer,
                         ArtikelName = artikel.Name,
                         ArtikelBezeichnung = artikel.Bezeichnung,
@@ -77,7 +77,7 @@ namespace LaliWebShop.Api.Extension
                     {
                         Id = warenkorbItem.Id,
                         ArtikelId = warenkorbItem.ArtikelId,
-                        KategorieName = artikel.KategorieName,
+                        //KategorieName = artikel.KategorieName,
                         ArtikelNummer = artikel.Artikelnummer,
                         ArtikelName = artikel.Name,
                         ArtikelBezeichnung = artikel.Bezeichnung,

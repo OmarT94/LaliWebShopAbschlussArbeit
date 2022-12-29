@@ -1,0 +1,113 @@
+﻿@page "/Kasse"
+@inherits KasseBase
+
+
+ @if (InBearbeitung)
+{
+    <div style="position:fixed;top:50%;left:50%;margin-top:-50px;margin-left:-100px;">
+       <Spinner/>
+	</div>
+}
+else
+{
+ <div class="mt-4 mx-4 px-md-5 mx-md-5 p-1">
+
+        <div class="row p-2 my-3">
+            <div class="col-12 col-lg-7 p-4">
+                <div class="row px-2 text-success ">
+                    <div class="col-8 py-1"><p style="font-size:x-large;margin:0px;">Bestellung Übersicht</p></div>
+                    <div class="col-4 p-0" style="text-align:right">
+                        <a href="/warenkorb" class="btn btn-secondary btn-block">Zurück zum Warenkorb </a>
+                    </div>
+                </div>
+                @foreach(var artikel in Bestellung.BestellungItems){
+                <div class="row border p-1 m-1">
+
+                    <div class="col-3 col-md-2 ">
+                        <img src="@artikel.Artikel.ImageURL" width="100%">
+                    </div>
+                    <div class="col-5 col-md-5 ">
+                        <span class="">Artikel : @artikel.ArtikelName </span><br />
+                        <span class="pt-1">Menge : @artikel.Menge</span><br />
+
+                    </div>
+                    <div class="col-4 col-md-5 " style="text-align:right;">
+                        <h4 class="text-warning font-weight-bold pt-2">
+                            EUR
+                            <span style="border-bottom:1px solid #ff6a00">
+                                 @((artikel.Menge * artikel.ArtikelPreisSingleNetto).ToString("c"))
+                            </span>
+                        </h4>
+                    </div>
+                </div>
+                }
+                <div class="row" style="text-align:right">
+                    <div class="col-12 px-3">
+                        <h3> Gesamtsumme : <span class="text-secondary">@Bestellung.Bestellung.SummeNetto.ToString("c")</span> </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5 p-4 ml-4 ml-md-0 mt-4 mt-md-0 border">
+                <EditForm Model="Bestellung.Bestellung" OnInvalidSubmit="BehandleKasse" >
+                    <DataAnnotationsValidator />
+                    <div class="row px-2 text-success border-bottom"><div class="col-7 py-1"><p style="font-size:x-large;margin:0px;">Details eingeben</p></div></div>
+
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Anrede</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Anrede" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Anrede"></ValidationMessage>
+                    </div>
+                     <div class="form-group pt-2">
+                        <label class="text-warning">Name</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Name" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Name"></ValidationMessage>
+                    </div>
+                     <div class="form-group pt-2">
+                        <label class="text-warning">Vorname</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Vorname" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Vorname"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Handy</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.HandyNummer" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.HandyNummer"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Email</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Email" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Email"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Straße</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Strasse" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Strasse"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Hausnummer</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Hausnummer" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Hausnummer"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Plz</label>
+                        <InputNumber @bind-Value="Bestellung.Bestellung.Plz" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Plz"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Ort</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Ort" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Ort"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <label class="text-warning">Land</label>
+                        <InputText @bind-Value="Bestellung.Bestellung.Land" type="text" class="form-control" />
+                        <ValidationMessage For="()=>Bestellung.Bestellung.Land"></ValidationMessage>
+                    </div>
+                    <div class="form-group pt-2">
+                        <button type="submit" class="btn btn-success form-control">Bezahlen</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    }

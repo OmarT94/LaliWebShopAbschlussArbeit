@@ -1,0 +1,171 @@
+﻿@page "/artikel/create"
+@page "/artikel/edit/{id:int}"
+@inject NavigationManager _navigationManager
+@inject IFileUpload _fileUpload
+@inject IJSRuntime _jsRuntime
+@using Lali.Business.Repository.Kontrakte
+@using LaliWebShop.Models.Dtos
+@using LaliWebShop.Server.Helper
+
+@inject IKategorieRepository _kategorieRepository
+@inject IArtikelRepository _artikelRepository
+
+
+
+<div class="row my-2">
+    <h3 class="card-title text-primary mb-3 ml-3">@Title Artikel</h3>
+
+    <div class="col-md-10">
+        @if (IsLoading)
+        {
+             <div class="text-center">
+                <img src="/images/loading.gif">
+                    </div>
+        }
+        else{
+        <EditForm Model="Artikel" OnValidSubmit="AddArtikel">
+            <DataAnnotationsValidator/>
+            @*<ValidationSummary/>*@
+            <div class="form-group">
+                <label>Name</label>
+                <InputText @bind-Value="Artikel.Name" class="form-control"></InputText> 
+                <ValidationMessage For="()=>Artikel.Name"></ValidationMessage>
+            </div>
+           <div class="form-group">
+                <label>Artikel Nummer</label>
+                <InputText @bind-Value="Artikel.Artikelnummer" class="form-control"></InputText> 
+                <ValidationMessage For="()=>Artikel.Artikelnummer"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <label>Bezeichnung</label>
+                <InputTextArea @bind-Value="Artikel.Bezeichnung" class="form-control"></InputTextArea> 
+                <ValidationMessage For="()=>Artikel.Bezeichnung"></ValidationMessage>
+            </div>
+            <div class="row pt-3">
+            <div class="form-group col-md-6">
+                <label>Preis</label>
+                <InputNumber @bind-Value="Artikel.PreisSingleNetto" class="form-control"></InputNumber> 
+                <ValidationMessage For="()=>Artikel.PreisSingleNetto"></ValidationMessage>
+            </div>
+            <div class="form-group col-md-6">
+                <label>Menge</label>
+                <InputNumber @bind-Value="Artikel.Menge" class="form-control"></InputNumber> 
+                <ValidationMessage For="()=>Artikel.Menge"></ValidationMessage>
+            </div>
+            </div>
+             <div class="row pt-3">
+            <div class="form-group col-md-6">
+                <label>Kategorie</label>
+                <InputSelect @bind-Value="Artikel.KategorieId" class="form-select">
+                    <option value="0" disabled selected>--Kategorie wählen--</option>
+                        @foreach(var kat in Kategorien)
+                        {
+                            <option value="@kat.Id">@kat.Name</option>
+                        
+                        }
+                </InputSelect> 
+                <ValidationMessage For="()=>Artikel.KategorieId"></ValidationMessage>
+            </div>
+            <div class="form-group pt-4 col-md-6">
+                <InputFile OnChange="HandleImageUpload">
+
+                </InputFile>
+            </div>
+            </div>
+            <div class="form-group py-2">
+                <button class="btn btn-primary">@Title</button>
+                <NavLink href="artikel" class="btn btn-secondary">Zurück</NavLink>
+            </div>
+        </EditForm>
+        }
+    </div>
+    <div class="col-md-2">
+        <img src="@Artikel.ImageURL" class="w-100">
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private ArtikelDto Artikel { get; set; } = new();
+    private IEnumerable <KategorieDto> Kategorien { get; set; } = new List<KategorieDto>();
+    private string Title { get; set; } = "Create";
+    public bool IsLoading { get; set; } 
+    public string OldImageUrl { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadArtikel();
+        }
+
+    }
+
+    private async Task LoadArtikel()
+    {
+        IsLoading=true;
+        StateHasChanged();
+        Kategorien = await _kategorieRepository.GetAll();
+        if (Id != 0)
+        {
+            Title = "Update";
+            Artikel = await _artikelRepository.GetItem(Id);
+            OldImageUrl = Artikel.ImageURL;
+        }
+        IsLoading=false;
+        StateHasChanged();
+    }
+    private  async Task AddArtikel()
+    {
+        if (Artikel.Id==0)
+        {
+            //create
+            await _artikelRepository.AddArtikel(Artikel);
+        }
+        else
+        {
+            if(OldImageUrl != Artikel.ImageURL)
+            {
+                _fileUpload.DeleteFile(OldImageUrl);
+            }
+            //update
+            await _artikelRepository.UpdateArtikel(Artikel);
+            await _jsRuntime.ToastrSuccess("Artikel erfolgreich geupdeted");
+        }
+        _navigationManager.NavigateTo("artikel");
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        IsLoading=true;
+        try
+        {
+            if (e.GetMultipleFiles().Count>0)
+            {
+                foreach (var file in e.GetMultipleFiles())
+                {
+                    System.IO.FileInfo fileInfo = new System.IO.FileInfo(file.Name);
+                    if (fileInfo.Extension.ToLower() == ".jpg" ||
+                      fileInfo.Extension.ToLower() == ".png" ||
+                      fileInfo.Extension.ToLower() == ".jpeg")
+                    {
+                        Artikel.ImageURL = await _fileUpload.UploadFile(file);
+                    }
+                    else
+                    {
+                        await _jsRuntime.ToastrError("Bitte wählen Sie nur.jpg/.jpeg/.png file");
+                        return;
+                    }
+                }
+            }
+            IsLoading=false;
+        }
+        catch(Exception ex)
+        {
+             await _jsRuntime.ToastrError(ex.Message);
+        }
+    }
+}

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Blazored.LocalStorage" Version="4.1.5" />
 	  <PackageReference Include="bootstrap" Version="5.2.1" />
 	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.10" />
       <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
@@ -14,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Lali.Business\Lali.Business.csproj" />
     <ProjectReference Include="..\LaliWebShop.Models\LaliWebShop.Models.csproj" />
   </ItemGroup>
 
