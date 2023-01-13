@@ -1,7 +1,9 @@
 ﻿using Lali.Business.Repository.Kontrakte;
+using Lali.Common;
 using LaliWebShop.Api.Extension;
 using LaliWebShop.Models;
 using LaliWebShop.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +21,7 @@ namespace LaliWebShop.Api.Controllers
         }
 
         [HttpGet]
+        //[Authorize(Roles =SD.Role_Customer)]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _artikelRepository.GetItems());

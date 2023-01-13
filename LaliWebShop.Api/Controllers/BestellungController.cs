@@ -3,7 +3,9 @@ using LaliWebShop.Api.Extension;
 using LaliWebShop.Models;
 using LaliWebShop.Models.Dtos;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
 
 namespace LaliWebShop.Api.Controllers
 {
@@ -12,10 +14,12 @@ namespace LaliWebShop.Api.Controllers
     public class BestellungController : ControllerBase
     {
         private readonly IBestellungRepository _bestellungRepository;
+        private readonly IEmailSender _emailSender;
 
-        public BestellungController(IBestellungRepository bestellungRepository)
+        public BestellungController(IBestellungRepository bestellungRepository, IEmailSender emailSender)
         {
             this._bestellungRepository = bestellungRepository;
+            this._emailSender = emailSender;
         }
 
         [HttpGet]
@@ -48,6 +52,41 @@ namespace LaliWebShop.Api.Controllers
 
             return Ok(bestellung);
         }
+
+        [HttpPost]
+        [ActionName("Add")]
+        public async Task<IActionResult> Add([FromBody] BezahlungDto bezahlungDTO)
+        {
+            bezahlungDTO.Bestellung.Bestellung.BestelltAm = DateTime.Now;
+            var result = await _bestellungRepository.Add(bezahlungDTO.Bestellung);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [ActionName("bezahlungerfolgreich")]
+        public async Task<IActionResult> BezahlungErfolgreich([FromBody] BestellungDto bestellungDTO)
+        {
+
+            var service = new SessionService();
+            var sessionDetails = service.Get(bestellungDTO.SessionId);
+            if (sessionDetails.PaymentStatus == "paid")
+            {
+                var result = await _bestellungRepository.BezahlungErfolgreich(bestellungDTO.Id,sessionDetails.PaymentIntentId);
+                await _emailSender.SendEmailAsync(bestellungDTO.Email, "Lali Bestellung Konfirmation",
+                    "Neue Bestellung wurde gegeben:" + bestellungDTO.Id);
+                if (result == null)
+                {
+                    return BadRequest(new ErrorModelDto()
+                    {
+                        ErrorMessage = "Zahlung kann nicht als erfolgreich markiert werden"
+                    });
+                }
+                return Ok(result);
+            }
+
+            return BadRequest();
+        }
+
 
 
 

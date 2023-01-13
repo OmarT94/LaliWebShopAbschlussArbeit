@@ -3,8 +3,9 @@
 @inject IJSRuntime _jsRuntime
 @inject IKategorieRepository _kategorieRepository
 @using Lali.Business.Repository.Kontrakte
+@using Lali.Common
 @using LaliWebShop.Models.Dtos
-
+@attribute [Authorize(Roles =SD.Role_Admin)]
 
 <DeleteConfirmation IsParentComponentProcessing="IsLoading" ConfirmationChanged="ConfirmDelete_Click"></DeleteConfirmation>
 <div class="row mt-4">

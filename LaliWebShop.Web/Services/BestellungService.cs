@@ -2,6 +2,7 @@
 using LaliWebShop.Models.Dtos;
 using LaliWebShop.Web.Services.Kontrakte;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace LaliWebShop.Web.Services
 {
@@ -17,7 +18,34 @@ namespace LaliWebShop.Web.Services
             BaseServerUrl = _configuration.GetSection("BaseServerUrl").Value;
         }
 
+        public async Task<BestellungPosDto> Add(BezahlungDto bezahlungDto)
+        {
+            var content = JsonConvert.SerializeObject(bezahlungDto);
+            var bodyContent = new StringContent(content, Encoding.UTF8,"application/json");
+            var response = await httpClient.PostAsync("api/bestellung/Add", bodyContent);
+            string responseResult = response.Content.ReadAsStringAsync().Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonConvert.DeserializeObject<BestellungPosDto>(responseResult);
+                return result;
+            }
+            return new BestellungPosDto();
+        }
 
+        public async Task<BestellungDto> BezaglungErfolgreich(BestellungDto bestellungDto)
+        {
+            var content = JsonConvert.SerializeObject(bestellungDto);
+            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync("api/bestellung/bezahlungerfolgreich", bodyContent);
+            string responseResult = response.Content.ReadAsStringAsync().Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonConvert.DeserializeObject<BestellungDto>(responseResult);
+                return result;
+            }
+            var errorModel = JsonConvert.DeserializeObject<ErrorModelDto>(responseResult);
+            throw new Exception(errorModel.ErrorMessage);
+        }
 
         public async Task<BestellungPosDto> Get(int bestellungId)
         {

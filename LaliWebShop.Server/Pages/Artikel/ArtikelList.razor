@@ -3,8 +3,12 @@
 @inject IJSRuntime _jsRuntime
 @inject IArtikelRepository _artikelRepository
 @using Lali.Business.Repository.Kontrakte
+@using Lali.Common
 @using LaliWebShop.Models.Dtos
 @using LaliWebShop.Server.Helper
+@inject NavigationManager _navigationManager
+
+@*@attribute [Authorize]*@
 
 
 <DeleteConfirmation IsParentComponentProcessing="IsLoading" ConfirmationChanged="ConfirmDelete_Click"></DeleteConfirmation>
@@ -90,6 +94,25 @@
         }
     }
 
+    [CascadingParameter]
+    public Task <AuthenticationState> AuthenticationState{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            var uri = new Uri(_navigationManager.Uri);
+            _navigationManager.NavigateTo($"/identity/account/login?returnUrl={uri.LocalPath}",forceLoad:true);
+        }
+        else
+        {
+            if (!authState.User.IsInRole(SD.Role_Admin))
+            {
+                _navigationManager.NavigateTo("/ErrorPage");
+            }
+        }
+    }
     private async Task LoadArtikels()
     {
         IsLoading=true;

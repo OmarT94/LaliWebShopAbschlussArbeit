@@ -1,0 +1,79 @@
+﻿@page "/bestellungList"
+@using Lali.Business.Repository.Kontrakte
+@using LaliWebShop.Models.Dtos
+@inject IBestellungRepository _bestellungRepository
+@inject NavigationManager _navigationManager
+@attribute [Authorize]
+<div>
+    <h4 class="card-title text-text-black-50">Bestellungen Liste</h4>
+    @if (Bestellungs.Any())
+    {
+        <RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5" AllowPaging="true" AllowSorting="true" 
+        Data="Bestellungs" TItem="BestellungDto" LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Id" Filterable="false" Title="ID" Frozen="true" />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Anrede" Title="Anrede"  />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Name" Title="Name"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Vorname" Title="Vornameame"  />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="HandyNummer" Title="Phone"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Email" Title="Email"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Strasse" Title="Straße"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Hausnummer" Title="Hausnummer"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Plz" Title="Plz"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Ort" Title="Ort"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Land" Title="Land"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="SummeNetto" Title="Total"   />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="BestelltAm" Title="Bestellung Datum" FormatString="{0:d}" />
+            <RadzenDataGridColumn TItem="BestellungDto" Property="Status" Title="Status" />
+           <RadzenDataGridColumn TItem="BestellungDto" Title="Details" >
+                <Template Context="data">
+                    <RadzenButton Click="(args=> BestellungDetails(data.Id))" Text="Details" ButtonStyle="ButtonStyle.Info"></RadzenButton>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    }
+     else
+        {
+            if (IsLoading)
+            {
+                //loading gif
+                <div class="text-center">
+                <img src="/images/loading.gif">
+                    </div>
+            }
+        }
+</div>
+
+
+@code {
+
+    private IEnumerable<BestellungDto> Bestellungs { get; set; } = new List<BestellungDto>();
+    private bool IsLoading { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            await LoadBestellungen();
+
+        }
+    }
+
+
+    private async Task LoadBestellungen()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        var Orders = await _bestellungRepository.GetAll();
+        Bestellungs = Orders.Select(u => u.Bestellung);
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+     private void BestellungDetails(int id)
+    {
+        _navigationManager.NavigateTo("/bestellung/details/" + id);
+    }
+}

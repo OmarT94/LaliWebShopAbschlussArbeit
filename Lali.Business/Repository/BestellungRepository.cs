@@ -6,11 +6,7 @@ using Lali.DataAccess.Entities;
 using Lali.DataAccess.ViewModel;
 using LaliWebShop.Models.Dtos;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Stripe;
 
 namespace Lali.Business.Repository
 {
@@ -18,7 +14,7 @@ namespace Lali.Business.Repository
     {
         private readonly ShopDbContext _shopDbContext;
         private readonly IMapper _mapper;
-        public BestellungRepository( ShopDbContext shopDbContext, IMapper mapper)
+        public BestellungRepository(ShopDbContext shopDbContext, IMapper mapper)
         {
             this._shopDbContext = shopDbContext;
             this._mapper = mapper;
@@ -34,7 +30,7 @@ namespace Lali.Business.Repository
                 foreach (var items in obj.BestellungItems)
                 {
                     items.BestellungId = obj.Bestellung.Id;
-                    
+
                 }
 
                 _shopDbContext.BestellungItems.AddRange(obj.BestellungItems);
@@ -56,7 +52,38 @@ namespace Lali.Business.Repository
             return bestellungPosDto;
         }
 
-        public async Task<BestellungDto> BezahlungErfolgreich(int id)
+        public async Task<BestellungDto> BestellungAbrrechen(int id)
+        {
+            var bestellung = await _shopDbContext.Bestellung.FindAsync(id);
+            if(bestellung == null)
+            {
+                return new BestellungDto();
+            }
+            if (bestellung.Status == SD.Status_Bevorstehend)
+            {
+                bestellung.Status = SD.Status_Storniert;
+                await _shopDbContext.SaveChangesAsync();
+            }
+            if (bestellung.Status == SD.Status_Bestaetigt)
+            {
+                var options = new Stripe.RefundCreateOptions
+                {
+                    Reason = Stripe.RefundReasons.RequestedByCustomer,
+                    PaymentIntent = bestellung.BezahlungId
+                };
+
+                var service = new Stripe.RefundService();
+                Stripe.Refund refund = service.Create(options);
+
+                bestellung.Status = SD.Status_Erstattet;
+                await _shopDbContext.SaveChangesAsync();
+            }
+            return _mapper.Map<Bestellung, BestellungDto>(bestellung);
+
+
+        }
+
+        public async Task<BestellungDto> BezahlungErfolgreich(int id, string bezahlungId)
         {
             var data = await _shopDbContext.Bestellung.FindAsync(id);
             if (data == null)
@@ -65,6 +92,7 @@ namespace Lali.Business.Repository
             }
             if (data.Status == SD.Status_Bevorstehend)
             {
+                data.BezahlungId = bezahlungId;
                 data.Status = SD.Status_Bestaetigt;
                 await _shopDbContext.SaveChangesAsync();
                 return _mapper.Map<Bestellung, BestellungDto>(data);
@@ -102,7 +130,7 @@ namespace Lali.Business.Repository
 
         public async Task<IEnumerable<BestellungPosDto>> GetAll(string? benutzerId = null, string? status = null)
         {
-            List<BestellungPos>bestellungFromDb = new List<BestellungPos>();
+            List<BestellungPos> bestellungFromDb = new List<BestellungPos>();
             IEnumerable<Bestellung> bestellungList = _shopDbContext.Bestellung;
             IEnumerable<BestellungItem> bestellungsItemsList = _shopDbContext.BestellungItems;
 
@@ -123,22 +151,22 @@ namespace Lali.Business.Repository
         {
             if (bestellungDto != null)
             {
-                var Bestellung = _mapper.Map<BestellungDto, Bestellung>(bestellungDto);
-                _shopDbContext.Bestellung.Update(Bestellung);
-
-                //var bestellungFromDb = _shopDbContext.Bestellung.FirstOrDefault(u => u.Id == bestellungDto.Id);
-                //bestellungFromDb.Anrede = bestellungDto.Anrede;
-                //bestellungFromDb.Name = bestellungDto.Name;
-                //bestellungFromDb.Vorname = bestellungDto.Vorname;
-                //bestellungFromDb.HandyNummer = bestellungDto.HandyNummer;
-                //bestellungFromDb.Strasse = bestellungDto.Strasse;
-                //bestellungFromDb.Hausnummer = bestellungDto.Hausnummer;
-                //bestellungFromDb.Ort = bestellungDto.Ort;
-                //bestellungFromDb.Plz = bestellungDto.Plz;
-                //bestellungFromDb.Land = bestellungDto.Land;
-                //bestellungFromDb.Status = bestellungDto.Status;
+               
+                var bestellungFromDb = _shopDbContext.Bestellung.FirstOrDefault(u => u.Id == bestellungDto.Id);
+                bestellungFromDb.Anrede = bestellungDto.Anrede;
+                bestellungFromDb.Name = bestellungDto.Name;
+                bestellungFromDb.Vorname = bestellungDto.Vorname;
+                bestellungFromDb.HandyNummer = bestellungDto.HandyNummer;
+                bestellungFromDb.Strasse = bestellungDto.Strasse;
+                bestellungFromDb.Hausnummer = bestellungDto.Hausnummer;
+                bestellungFromDb.Ort = bestellungDto.Ort;
+                bestellungFromDb.Plz = bestellungDto.Plz;
+                bestellungFromDb.Land = bestellungDto.Land;
+                bestellungFromDb.Status = bestellungDto.Status;
+                bestellungFromDb.Tracking = bestellungDto.Tracking;
+                bestellungFromDb.Transporter = bestellungDto.Transporter;
                 await _shopDbContext.SaveChangesAsync();
-                return _mapper.Map<Bestellung, BestellungDto>(Bestellung);
+                return _mapper.Map<Bestellung, BestellungDto>(bestellungFromDb);
             }
             return new BestellungDto();
         }
@@ -150,12 +178,12 @@ namespace Lali.Business.Repository
             {
                 return false;
             }
-          
+
             data.Status = status;
             await _shopDbContext.SaveChangesAsync();
             return true;
-            
-        
+
+
         }
     }
 }

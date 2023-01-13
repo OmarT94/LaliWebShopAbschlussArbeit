@@ -1,0 +1,259 @@
+﻿@page "/bestellung/details/{Id:int}"
+
+@inject IBestellungRepository _bestellungRepository
+@inject IJSRuntime _jsRuntime
+@using Lali.Business.Repository.Kontrakte
+@using Lali.Common
+@using LaliWebShop.Models.Dtos
+@using LaliWebShop.Server.Helper
+@attribute [Authorize]
+@if(IsLoading){
+	<div class="text-center">
+                <img src="/images/loading.gif">
+	</div>
+}
+else
+{
+	<div class="container">
+    <div class="card">
+        <div class="card-header bg-dark text-light ml-0">
+            <div class="container row">
+                <div class="col-12 d-none d-md-block col-md-6 pb-1">
+                    <i class="fas fa-shopping-cart"></i> &nbsp; Bestellungsübersicht
+                </div>
+                <div class="col-12 col-md-4 offset-md-2 text-right">
+                    <a href="/bestellungList" class="btn btn-outline-info form-control btn-sm">Zurück zur Bestellungen</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="container rounded p-2">
+                <div class="row">
+                    <div class="col-12 col-lg-6 pb-4">
+                        <EditForm Model="Bestellung" OnValidSubmit="UpdateBestellung">
+                            <DataAnnotationsValidator/>
+                            <div class="row">
+                                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-primary">Kunden details:</span>
+                                </h4>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Name</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Name" class="form-control" />
+                                    <ValidationMessage For="()=>Bestellung.Bestellung.Name"></ValidationMessage>
+                                </div>
+                            </div>
+                             <div class="row my-1">
+                                <div class="col-3">Vorname</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Vorname" class="form-control" />
+                                    <ValidationMessage For="()=>Bestellung.Bestellung.Vorname"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Handynummer</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.HandyNummer" class="form-control" />
+									<ValidationMessage For="()=>Bestellung.Bestellung.HandyNummer"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Straße</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Strasse" class="form-control" />
+									<ValidationMessage For="()=>Bestellung.Bestellung.Strasse"></ValidationMessage>
+                                </div>
+                            </div>
+                             <div class="row my-1">
+                                <div class="col-3">Hausnummer</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Hausnummer" class="form-control" />
+                                    <ValidationMessage For="()=>Bestellung.Bestellung.Hausnummer"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Ort</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Ort" class="form-control" />
+									<ValidationMessage For="()=>Bestellung.Bestellung.Ort"></ValidationMessage>
+                                </div>
+                            </div>
+                           <div class="row my-1">
+                                <div class="col-3">Land</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Land" class="form-control" />
+									<ValidationMessage For="()=>Bestellung.Bestellung.Land"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Plz</div>
+                                <div class="col-9">
+                                    <InputNumber @bind-Value="Bestellung.Bestellung.Plz" class="form-control" />
+									<ValidationMessage For="()=>Bestellung.Bestellung.Plz"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Email</div>
+                                <div class="col-9">
+                                    <input type="text" readonly value="@Bestellung.Bestellung.Email"  class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Bestellt um</div>
+                                <div class="col-9">
+                                    <input type="text" readonly value="@Bestellung.Bestellung.BestelltAm.ToShortDateString()"  class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Transporter</div>
+                                <div class="col-9">
+                                   <InputText @bind-Value="Bestellung.Bestellung.Transporter" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Tracking</div>
+                                <div class="col-9">
+                                    <InputText @bind-Value="Bestellung.Bestellung.Tracking" class="form-control" />
+                                </div>
+                            </div>
+                            @if (Bestellung.Bestellung.Status != SD.Status_Bestaetigt && Bestellung.Bestellung.Status != SD.Status_Bevorstehend)
+                            {
+                                <div class="row my-1">
+                                    <div class="col-3">Lieferdatum</div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" />
+                                    </div>
+                                </div>
+                            }
+                            <div class="row my-1">
+                                <div class="col-3">Session ID</div>
+                                <div class="col-9">
+                                    <input type="text" readonly value="@Bestellung.Bestellung.SessionId"  class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">Bestellung Status</div>
+                                <div class="col-9">
+                                    <input value="@Bestellung.Bestellung.Status" type="text" readonly class="form-control" />
+                                </div>
+                            </div>
+                                @if (Bestellung.Bestellung.Status == SD.Status_Bestaetigt)
+                                {
+                                    <input type="submit" class="btn btn-warning form-control my-1" value="Update Bestellung Details" />
+                                }
+                            </EditForm>
+                    </div>
+                    <div class="col-12 col-lg-5 offset-lg-1">
+                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-primary">Bestellungsübersicht</span>
+                        </h4>
+                        <ul class="list-group mb-3">
+                            @foreach(var detail in Bestellung.BestellungItems)
+                            {
+                            <li class="list-group-item d-flex justify-content-between p-2">
+                                <div class="row container">
+                                    <div class="col-8">
+                                        <h6 class="my-0 text-primary">@detail.ArtikelName</h6>
+                                        @*<div class="col-2">
+                                        <img src="@detail." width="100%" class="rounded" />
+                                        </div>*@
+                                        <small class="text-muted">Price : @detail.ArtikelPreisSingleNetto.ToString("c")</small><br />
+                                        <small class="text-muted">Quantity : @detail.Menge</small>
+
+                                        
+                                    </div>
+                                    <div class="col-4 text-end">
+                                        <p class="text-success">@((detail.Menge * detail.ArtikelPreisSingleNetto).ToString("c"))</p>
+                                    </div>
+                                </div>
+                            </li>
+                            }
+                            <li class="list-group-item bg-info">
+                                <div class="row container">
+                                    <div class="col-6">
+                                        <h5 class="text-white">Gesamtsumme </h5>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <h5 class="text-white">@Bestellung.Bestellung.SummeNetto.ToString("c")</h5>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                            @if (Bestellung.Bestellung.Status == SD.Status_Bestaetigt)
+                            {
+                                <button @onclick="BestellungsLiefern" class="btn btn-success form-control my-1">Bestellung liefern</button>
+                            }
+
+                            @if (Bestellung.Bestellung.Status == SD.Status_Bestaetigt ||
+                                Bestellung.Bestellung.Status==SD.Status_Bevorstehend)
+                            {
+                                <button @onclick="BestellungStornieren" class="btn btn-danger form-control my-1">Bestellung stornieren</button>
+                            }
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; } = 0;
+    public bool IsLoading { get; set; } = true;
+    public BestellungPosDto Bestellung { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) { 
+
+            await LoadOrder();
+        }
+    }
+
+    private async Task LoadOrder()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Bestellung = await _bestellungRepository.Get(Id);
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task UpdateBestellung()
+    {
+        var BestellungDTO = await _bestellungRepository.Update(Bestellung.Bestellung);
+        Bestellung.Bestellung=BestellungDTO;
+        _jsRuntime.ToastrSuccess("Die Bestellung wurde erfolgreich aktualisiert");
+    }
+
+    private async Task BestellungsLiefern()
+    {
+        if (string.IsNullOrEmpty(Bestellung.Bestellung.Transporter) || string.IsNullOrEmpty(Bestellung.Bestellung.Tracking))
+        {
+            _jsRuntime.ToastrError("Bitte geben Sie Sendungsverfolgungs- und Spediteurinformationen ein");
+            return;
+        }
+
+        Bestellung.Bestellung.Status=SD.Status_Geliefert;
+        var bestellungDTO = await _bestellungRepository.Update(Bestellung.Bestellung);
+        Bestellung.Bestellung=bestellungDTO;
+        _jsRuntime.ToastrSuccess("Bestellung wurde versandt!");
+    }
+
+    private async Task BestellungStornieren()
+    {
+        Bestellung.Bestellung = await _bestellungRepository.BestellungAbrrechen(Bestellung.Bestellung.Id);
+        if (Bestellung.Bestellung.Status==SD.Status_Storniert)
+        {
+            _jsRuntime.ToastrSuccess("Bestellung wurde erfolgreich storniert");
+        }
+        if (Bestellung.Bestellung.Status==SD.Status_Erstattet)
+        {
+            _jsRuntime.ToastrSuccess("Die Bestellung wurde erfolgreich storniert und erstattet");
+        }
+        
+    }
+}

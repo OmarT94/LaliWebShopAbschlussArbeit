@@ -15,8 +15,10 @@ namespace Lali.Business.Repository.Kontrakte
         public Task<int> Delete(int id);
 
         public Task<BestellungDto> Update(BestellungDto bestellungDto);
-        public Task<BestellungDto> BezahlungErfolgreich(int id);
+        public Task<BestellungDto> BezahlungErfolgreich(int id,string bezahlungId);
         public Task<bool> UpdateBestellungStatus(int bestellungId, string status);
+
+        public Task<BestellungDto> BestellungAbrrechen(int id);
 
 
     }

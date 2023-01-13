@@ -1,6 +1,7 @@
 ﻿@page "/Kasse"
+@using Microsoft.AspNetCore.Authorization
 @inherits KasseBase
-
+@attribute [Authorize]
 
  @if (InBearbeitung)
 {
@@ -49,7 +50,7 @@ else
             </div>
 
             <div class="col-12 col-lg-5 p-4 ml-4 ml-md-0 mt-4 mt-md-0 border">
-                <EditForm Model="Bestellung.Bestellung" OnInvalidSubmit="BehandleKasse" >
+                <EditForm Model="Bestellung.Bestellung" OnValidSubmit="BehandleKasse" >
                     <DataAnnotationsValidator />
                     <div class="row px-2 text-success border-bottom"><div class="col-7 py-1"><p style="font-size:x-large;margin:0px;">Details eingeben</p></div></div>
 
@@ -69,7 +70,7 @@ else
                         <ValidationMessage For="()=>Bestellung.Bestellung.Vorname"></ValidationMessage>
                     </div>
                     <div class="form-group pt-2">
-                        <label class="text-warning">Handy</label>
+                        <label class="text-warning">Handynummer</label>
                         <InputText @bind-Value="Bestellung.Bestellung.HandyNummer" type="text" class="form-control" />
                         <ValidationMessage For="()=>Bestellung.Bestellung.HandyNummer"></ValidationMessage>
                     </div>
@@ -90,7 +91,7 @@ else
                     </div>
                     <div class="form-group pt-2">
                         <label class="text-warning">Plz</label>
-                        <InputNumber @bind-Value="Bestellung.Bestellung.Plz" type="text" class="form-control" />
+                        <InputNumber @bind-Value="Bestellung.Bestellung.Plz" type="number" class="form-control" />
                         <ValidationMessage For="()=>Bestellung.Bestellung.Plz"></ValidationMessage>
                     </div>
                     <div class="form-group pt-2">
@@ -103,6 +104,7 @@ else
                         <InputText @bind-Value="Bestellung.Bestellung.Land" type="text" class="form-control" />
                         <ValidationMessage For="()=>Bestellung.Bestellung.Land"></ValidationMessage>
                     </div>
+
                     <div class="form-group pt-2">
                         <button type="submit" class="btn btn-success form-control">Bezahlen</button>
                     </div>

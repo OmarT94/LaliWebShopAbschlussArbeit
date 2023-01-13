@@ -1,4 +1,5 @@
 ﻿using Lali.DataAccess.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Lali.DataAccess.Data
 {
-    public class ShopDbContext:DbContext
+    public class ShopDbContext: IdentityDbContext
     {
         public ShopDbContext(DbContextOptions<ShopDbContext>options):base(options)
         {
@@ -214,7 +215,7 @@ namespace Lali.DataAccess.Data
         public DbSet<WarenkorbItem> WarenkorbItem { get; set; }
         public DbSet<Bestellung> Bestellung { get; set; }
         public DbSet<BestellungItem> BestellungItems { get; set; }
-
+        public DbSet<ApplicationBenutzer> ApplicationBenutzers { get; set; }
 
 
     }

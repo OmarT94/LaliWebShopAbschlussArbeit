@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Lali.Common;
 using LaliWebShop.Models.Dtos;
+using LaliWebShop.Web.Helper;
 using LaliWebShop.Web.Services.Kontrakte;
 using LaliWebShop.Web.ViewModels;
 using Microsoft.AspNetCore.Components;
@@ -15,6 +16,12 @@ namespace LaliWebShop.Web.Pages
 
         [Inject]
         public IArtikelService _artikelService { get; set; }
+
+        [Inject]
+        public IBestellungService _bestellungService { get; set; }
+
+        [Inject]
+        public IBezahlungMethodeService _bezahlungMethodeService { get; set; }
 
         [Inject]
         public IJSRuntime js { get; set; }
@@ -64,12 +71,54 @@ namespace LaliWebShop.Web.Pages
                 Bestellung.Bestellung.SummeNetto += (item.Count * artikel.PreisSingleNetto);
             }
 
+            if (await _localStorage.GetItemAsync<BenutzerDto>(SD.Local_BenutzerDetails) != null)
+            {
+                var benutzerInfo = await _localStorage.GetItemAsync<BenutzerDto>(SD.Local_BenutzerDetails);
+                Bestellung.Bestellung.BenutzerId = benutzerInfo.Id;
+                Bestellung.Bestellung.Name = benutzerInfo.Name;
+                Bestellung.Bestellung.Vorname = benutzerInfo.vorname;
+                Bestellung.Bestellung.Email = benutzerInfo.Email;
+                Bestellung.Bestellung.HandyNummer = benutzerInfo.HandyNummer;
+                ////////
+                //Bestellung.Bestellung.Anrede = benutzerInfo.Anrede;
+                //Bestellung.Bestellung.Strasse = benutzerInfo.Strasse;
+                //Bestellung.Bestellung.Hausnummer = benutzerInfo.Hausnummer;
+                //Bestellung.Bestellung.Plz = benutzerInfo.Plz;
+                //Bestellung.Bestellung.Ort = benutzerInfo.Ort;
+                //Bestellung.Bestellung.Land = benutzerInfo.Land;
+
+            }
+
             InBearbeitung = false;
         }
 
         public async Task BehandleKasse()
         {
+            try
+            {
+                InBearbeitung = true;
+                var bezahlungDto = new BezahlungDto()
+                {
+                    Bestellung=Bestellung
+                };
 
+                var result = await _bezahlungMethodeService.Checkout(bezahlungDto);
+
+                //var StripeSessionAndPI = result.Data.ToString().Split(';');
+
+                Bestellung.Bestellung.SessionId = result.Data.ToString();
+                //Bestellung.Bestellung.BezahlungId = StripeSessionAndPI[1];
+
+                var bestellungDTOSaved = await _bestellungService.Add(bezahlungDto);
+
+                await _localStorage.SetItemAsync(SD.Local_BestellungsDetails, bestellungDTOSaved);
+
+                await js.InvokeVoidAsync("redirectToCheckout",result.Data.ToString());
+            }
+            catch (Exception e)
+            {
+                await js.ToastrError(e.Message);
+            }
         }
 
 

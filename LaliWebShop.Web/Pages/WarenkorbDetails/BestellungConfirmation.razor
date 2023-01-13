@@ -1,0 +1,83 @@
+﻿@page "/BestellungConfirmation"
+@using Blazored.LocalStorage
+@using Lali.Common
+@using LaliWebShop.Web.Helper
+
+@inject ILocalStorageService _localStorage
+@inject IBestellungService _bestellungService
+
+
+<div class="container">
+    @if (IsProcessing)
+    
+    {
+        <Spinner></Spinner>
+  
+    }
+    else
+    {
+        @if (Bestellung.Bestellung.Status == SD.Status_Bestaetigt)
+        {
+            <div class="row mt-4 pt-4">
+             <div class="col-10 offset-1 text-center">
+                <h2 class="text-warning">Bestellung bestätigt</h2>
+                <p>Ihre Bestellung wurde erfolgreich mit der Bestell-ID aufgegeben : @Bestellung.Bestellung.Id</p>
+            </div>
+             <div class="col-8 offset-2">
+                <img src="/ArtikelImages/BestellungConfirmation.jpg" width="100%" style="border-radius:30px;" />
+            </div>
+            </div>
+        }
+        else
+        {
+             <div class="row mt-4 pt-4">
+                <div class="col-10 offset-1 text-center">
+                <h2 class="text-danger">Bestellproblem!</h2>
+                <p>Ihre Bestellung hat ein Zahlungsproblem, bitte kontaktieren Sie uns mit der Bestell-ID:  @Bestellung.Bestellung.Id</p>
+            </div>
+            <div class="col-8 offset-2">
+                <img src="/ArtikelImages/BestellungConfirmation.jpg" width="100%" style="border-radius:30px;" />
+            </div>
+            </div>
+        }
+
+    }
+</div>
+
+
+@code {
+    [Inject]
+    public IJSRuntime js { get; set; }
+    private bool IsProcessing { get; set; } = false;
+    private BestellungPosDto Bestellung { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        IsProcessing = true;
+        Bestellung = await _localStorage.GetItemAsync<BestellungPosDto>(SD.Local_BestellungsDetails);
+        //add logic to check payment and update status
+        try
+        {
+           var updateBestellung = await _bestellungService.BezaglungErfolgreich(Bestellung.Bestellung);
+        if (updateBestellung.Status==SD.Status_Bestaetigt)
+        {
+            Bestellung.Bestellung.Status=updateBestellung.Status;
+            await _localStorage.RemoveItemAsync(SD.Local_BestellungsDetails);
+            await _localStorage.RemoveItemAsync(SD.Warenkorb);   
+
+        }
+        }
+        catch (Exception xx)
+        {
+            await js.ToastrError(xx.Message);
+        }
+
+        
+          IsProcessing = false;
+          
+
+
+
+    }
+}

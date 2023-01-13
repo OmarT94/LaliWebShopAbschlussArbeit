@@ -4,6 +4,14 @@
 @inherits ArtikelBase
 @*@inject IArtikelRepository _artikelRepository
 *@
+@*<AuthorizeView>
+<Authorized>
+    <p>Willkomen, @context.User.Identity.Name</p>
+</Authorized>
+<NotAuthorized>
+    <p>Sie haben sich noch nicht eingetragen! </p>
+</NotAuthorized>
+</AuthorizeView>*@
 @if (Artikels == null)
 {
    <Spinner/>
